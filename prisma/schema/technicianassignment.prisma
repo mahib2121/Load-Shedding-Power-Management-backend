@@ -1,0 +1,22 @@
+model TechnicianAssignment {
+  id           String           @id @default(uuid())
+
+  outageId     String
+  technicianId String
+
+  status       AssignmentStatus @default(PENDING)
+
+  assignedAt   DateTime         @default(now())
+  acceptedAt   DateTime?
+  startedAt    DateTime?
+  completedAt  DateTime?
+
+  notes        String?
+
+  outage     Outage @relation(fields: [outageId], references: [id])
+  technician User   @relation(fields: [technicianId], references: [id])
+
+  @@index([outageId])
+  @@index([technicianId])
+  @@index([status])
+}

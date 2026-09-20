@@ -1,0 +1,21 @@
+model Area {
+  id        String   @id @default(uuid())
+
+  name      String
+  code      String   @unique
+
+  feederId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  // Relationships
+  feeder        Feeder         @relation(fields: [feederId], references: [id])
+  users         User[]
+  outageReports OutageReport[]
+  outages       Outage[]
+
+  @@index([feederId])
+  @@index([deletedAt])
+}

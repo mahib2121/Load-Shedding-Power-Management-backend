@@ -1,0 +1,58 @@
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum FeederPriority {
+  CRITICAL
+  HIGH
+  NORMAL
+  LOW
+}
+
+enum OutageStatus {
+  REPORTED
+  VERIFIED
+  ASSIGNED
+  IN_PROGRESS
+  RESTORED
+  CLOSED
+  REJECTED
+}
+
+enum OutageSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ScheduleStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum AssignmentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  OUTAGE_REPORTED
+  OUTAGE_VERIFIED
+  OUTAGE_ASSIGNED
+  OUTAGE_STARTED
+  POWER_RESTORED
+  SCHEDULE_CREATED
+  SCHEDULE_APPROVED
+  SYSTEM
+}

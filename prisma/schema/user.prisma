@@ -1,0 +1,48 @@
+enum UserRole {
+  CUSTOMER
+  FIELD_OPERATOR
+  ZONE_MANAGER
+  SUPER_ADMIN
+}
+
+enum JobType {
+  OPERATOR
+  TECHNICIAN
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String?
+  phone     String?
+
+  googleId  String?  @unique
+
+  role      UserRole @default(CUSTOMER)
+  jobType   JobType?
+
+  isActive  Boolean  @default(true)
+
+  areaId    String?
+  zoneId    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  area          Area?                  @relation(fields: [areaId], references: [id])
+  zone          Zone?                  @relation(fields: [zoneId], references: [id])
+
+  outageReports OutageReport[]
+  assignments   TechnicianAssignment[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+
+  @@index([role])
+  @@index([jobType])
+  @@index([areaId])
+  @@index([zoneId])
+  @@index([isActive])
+  @@index([deletedAt])
+}

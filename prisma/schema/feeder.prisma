@@ -1,0 +1,30 @@
+model Feeder {
+  id            String         @id @default(uuid())
+
+  name          String
+  code          String         @unique
+
+  capacityMW    Float
+  currentLoadMW Float          @default(0)
+
+  priority      FeederPriority @default(NORMAL)
+
+  substationId  String
+
+  isActive      Boolean        @default(true)
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+
+  // Relationships
+  substation    Substation     @relation(fields: [substationId], references: [id])
+  areas         Area[]
+  scheduleSlots ScheduleSlot[]
+  outages       Outage[]
+
+  @@index([substationId])
+  @@index([priority])
+  @@index([isActive])
+  @@index([deletedAt])
+}
