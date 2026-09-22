@@ -58,20 +58,6 @@ app.get("/", (_req: Request, res: Response) => {
     message: "Welcome to Load Shedding & Power Management ⚡",
   });
 });
-// app.get("/test", async (req: Request, res: Response) => {
-//   try {
-//     await redisClient.set("otp for user :customer@gmail.com", "123456", {
-//       expiration: {
-//         type: "EX",
-//         value: 90, // 1 minute
-//       },
-//     });
-//   }
-//   catch (error) {
-//     console.log("redis erroor otp");
-//     next(error);
-//   }
-// });
 
 app.use(notFound);
 app.use(globalErrorHandler);

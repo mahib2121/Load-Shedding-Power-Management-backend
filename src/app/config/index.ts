@@ -48,6 +48,9 @@ const config = {
   smtp_user: process.env.SMTP_USER,
   smtp_password: process.env.SMTP_Password,
   email_sender: process.env.email_sender,
+  cloudName: process.env.cloudName,
+  cloudAPIkey: process.env.cloudApiKey,
+  cloudAPIsecret: process.env.cloudApiSecret,
 };
 
 export default config;

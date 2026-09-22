@@ -8,11 +8,9 @@ const main = async () => {
   try {
     // Connect to database
     await prisma.$connect();
-
     console.log("Connected to the database successfully.");
     await redisClient.connect();
     console.log("Connected to redis");
-
     // Start server
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
@@ -21,9 +19,7 @@ const main = async () => {
     });
   } catch (error) {
     console.error("Error starting the server:", error);
-
     await prisma.$disconnect();
-
     process.exit(1);
   }
 };
