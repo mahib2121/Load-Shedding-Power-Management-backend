@@ -26,3 +26,4 @@ export interface IRequestUser {
 	zoneId?: string | null;
 	areaId?: string | null;
 }
+

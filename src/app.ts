@@ -10,6 +10,7 @@ import config from "./app/config";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
 import { AuthRoutes } from "./app/module/auth/auth.route";
+import redisClient from "./app/lib/redis";
 
 const app: Application = express();
 app.use(
@@ -57,6 +58,20 @@ app.get("/", (_req: Request, res: Response) => {
     success: true,
     message: "Welcome to Load Shedding & Power Management ⚡",
   });
+});
+app.get("/test", async (req: Request, res: Response) => {
+  try {
+    await redisClient.set("otp for user :customer@gmail.com", "123456", {
+      expiration: {
+        type: "EX",
+        value: 90, // 1 minute
+      },
+    });
+  } 
+  catch (error) {
+    console.log("redis erroor otp");
+    next(error);
+  }
 });
 
 app.use(notFound);

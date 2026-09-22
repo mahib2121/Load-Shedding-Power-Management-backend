@@ -1,43 +1,53 @@
 import z from "zod";
 
-const RegistrationZodSchema = z.object({
+const RegisterUserZodSchema = z.object({
   name: z
-    .string("Not A String!!!!!")
-    .min(3, "Name must atleast 3 characters long!!!")
-    .max(10),
-  email: z.email("Not email!!"),
+    .string("Name must be a string")
+    .min(3, "Name must be at least 3 characters long")
+    .max(100, "Name must not exceed 100 characters"),
+
+  email: z.email("Invalid email address"),
+
   password: z
     .string()
-    .min(8, "Password Must Minimum 8 Characters Long.")
-    .regex(/[a-z]/, "Password must contain atleast 1 Lowercase Letter")
-    .regex(/[A-Z]/, "Password must contain atleast 1 Uppercase Letter")
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
+    .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least 1 number")
+    .regex(
+      /[^A-Za-z0-9]/,
+      "Password must contain at least 1 special character",
+    ),
 
-    .regex(/[0-9]/, "Password must contain atleast 1 Number")
-    .regex(/[^A-Za-z0-9]/, "Password must contain atleast 1 Special Character"),
-  patient: z
-    .object({
-      contactNumber: z.string().optional(),
-    })
-    .optional(),
+  phone: z
+    .string()
+    .min(10, "Phone number must be at least 10 characters long")
+    .max(15, "Phone number must not exceed 15 characters"),
+
+  areaId: z.string().uuid("Invalid area ID"),
 });
 
 const LoginZodSchema = z.object({
-  email: z.email(),
+  email: z.email("Invalid email address"),
+
   password: z
     .string()
-    .min(8, "Password Must Minimum 8 Characters Long.")
-    .regex(/[a-z]/, "Password must contain atleast 1 Lowercase Letter")
-    .regex(/[A-Z]/, "Password must contain atleast 1 Uppercase Letter")
-
-    .regex(/[0-9]/, "Password must contain atleast 1 Number")
-    .regex(/[^A-Za-z0-9]/, "Password must contain atleast 1 Special Character"),
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
+    .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least 1 number")
+    .regex(
+      /[^A-Za-z0-9]/,
+      "Password must contain at least 1 special character",
+    ),
 });
+
 const GoogleLoginZodSchema = z.object({
   idToken: z.string().min(1, "Google ID token is required"),
 });
 
 export const UserValidation = {
-  RegistrationZodSchema,
+  RegisterUserZodSchema,
   LoginZodSchema,
   GoogleLoginZodSchema,
 };
