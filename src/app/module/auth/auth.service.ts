@@ -21,6 +21,8 @@ import type {
 } from "./auth.interface";
 import redisClient from "../../lib/redis";
 import path from "path/win32";
+import { transporter } from "../../lib/nodeMailer";
+import ejs from "ejs";
 
 const generateTokens = (user: {
   id: string;

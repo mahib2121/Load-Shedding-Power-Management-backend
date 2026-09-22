@@ -13,12 +13,8 @@ router.post(
   validateRequest(UserValidation.RegisterUserZodSchema),
   AuthController.registerUser,
 );
-
-router.post(
-  "/login",
-  validateRequest(UserValidation.LoginZodSchema),
-  AuthController.loginUser,
-);
+// validateRequest(UserValidation.LoginZodSchema),
+router.post("/login", AuthController.loginUser);
 
 router.get(
   "/me",
@@ -37,5 +33,11 @@ router.post(
   validateRequest(UserValidation.GoogleLoginZodSchema),
   AuthController.googleLogin,
 );
+router.post(
+  "/forgot-password",
+
+  AuthController.forgotPassword,
+);
+router.post("/reset-password", AuthController.resetPassword);
 
 export const AuthRoutes = router;

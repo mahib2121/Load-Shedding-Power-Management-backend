@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
+import { email } from "zod";
 
 dotenv.config({
   path: path.join(process.cwd(), ".env"),
@@ -44,6 +45,9 @@ const config = {
   redis_password: process.env.REDIS_PASSWORD,
   redis_host: process.env.REDIS_HOST,
   redis_port: process.env.REDIS_PORT,
+  smtp_user: process.env.SMTP_USER,
+  smtp_password: process.env.SMTP_Password,
+  email_sender: process.env.email_sender,
 };
 
 export default config;
