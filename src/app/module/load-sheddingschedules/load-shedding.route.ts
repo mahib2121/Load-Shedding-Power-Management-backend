@@ -7,7 +7,11 @@ import { LoadSheddingController } from "./load-shedding.controller";
 import { LoadSheddingValidation } from "./load-shedding.validation";
 
 const router = Router();
-
+router.get(
+  "/schedules",
+  auth(UserRole.SUPER_ADMIN, UserRole.ZONE_MANAGER),
+  LoadSheddingController.getSchedules,
+);
 router.post(
   "/schedules",
   auth(UserRole.SUPER_ADMIN, UserRole.ZONE_MANAGER),
@@ -19,6 +23,11 @@ router.post(
   auth(UserRole.SUPER_ADMIN, UserRole.ZONE_MANAGER),
   validateRequest(LoadSheddingValidation.CreateScheduleSlotZodSchema),
   LoadSheddingController.createScheduleSlot,
+);
+router.get(
+  "/schedules/:scheduleId",
+  auth(UserRole.SUPER_ADMIN, UserRole.ZONE_MANAGER),
+  LoadSheddingController.getScheduleById,
 );
 
 export const LoadSheddingRoutes = router;

@@ -1,3 +1,4 @@
+import { ScheduleStatus } from "../../../generated/prisma/browser";
 import { catchAsync } from "../../utils/catchAsync";
 import { LoadSheddingService } from "./load-shedding.service";
 import type { Request, Response } from "express";
@@ -16,7 +17,7 @@ const createSchedule = catchAsync(async (req: Request, res: Response) => {
     message: "Load shedding schedule created successfully",
     data: result,
   });
-})
+});
 
 const createScheduleSlot = catchAsync(async (req: Request, res: Response) => {
   const result = await LoadSheddingService.createScheduleSlot(
@@ -34,7 +35,43 @@ const createScheduleSlot = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSchedules = catchAsync(async (req: Request, res: Response) => {
+  const result = await LoadSheddingService.getSchedules(
+    req.user!.userId,
+    req.user!.role,
+    {
+      zoneId: req.query.zoneId as string | undefined,
+      status: req.query.status as ScheduleStatus | undefined,
+      date: req.query.date ? new Date(req.query.date as string) : undefined,
+    },
+  );
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Load shedding schedules retrieved successfully",
+    data: result,
+  });
+});
+
+const getScheduleById = catchAsync(async (req: Request, res: Response) => {
+  const result = await LoadSheddingService.getScheduleById(
+    req.params.scheduleId as string,
+    req.user!.userId,
+    req.user!.role,
+  );
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Load shedding schedule retrieved successfully",
+    data: result,
+  });
+});
+
 export const LoadSheddingController = {
   createSchedule,
   createScheduleSlot,
+  getScheduleById,
+  getSchedules,
 };

@@ -209,7 +209,162 @@ const createScheduleSlot = async (
   return slot;
 };
 
+
+const getSchedules = async (
+  userId: string,
+  userRole: UserRole,
+  filters?: {
+    zoneId?: string;
+    status?: ScheduleStatus;
+    date?: Date;
+  },
+) => {
+  const where: {
+    deletedAt: null;
+    zoneId?: string;
+    status?: ScheduleStatus;
+    date?: Date;
+  } = {
+    deletedAt: null,
+  };
+
+  // Zone Manager can only see schedules from their own zone
+  if (userRole === UserRole.ZONE_MANAGER) {
+    const manager = await prisma.user.findFirst({
+      where: {
+        id: userId,
+        role: UserRole.ZONE_MANAGER,
+        isActive: true,
+        deletedAt: null,
+      },
+      select: {
+        zoneId: true,
+      },
+    });
+
+    if (!manager) {
+      throw new AppError(403, "Zone manager not found");
+    }
+
+    if (!manager.zoneId) {
+      throw new AppError(400, "Zone manager is not assigned to a zone");
+    }
+
+    where.zoneId = manager.zoneId;
+  }
+
+  // SUPER_ADMIN can optionally filter by zone
+  if (userRole === UserRole.SUPER_ADMIN && filters?.zoneId) {
+    where.zoneId = filters.zoneId;
+  }
+
+  // Optional status filter
+  if (filters?.status) {
+    where.status = filters.status;
+  }
+
+  // Optional date filter
+  if (filters?.date) {
+    where.date = filters.date;
+  }
+
+  const schedules = await prisma.loadSheddingSchedule.findMany({
+    where,
+    orderBy: [
+      {
+        date: "desc",
+      },
+      {
+        createdAt: "desc",
+      },
+    ],
+    include: {
+      zone: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+        },
+      },
+      _count: {
+        select: {
+          slots: true,
+        },
+      },
+    },
+  });
+
+  return schedules;
+};
+
+const getScheduleById = async (
+  scheduleId: string,
+  userId: string,
+  userRole: UserRole,
+) => {
+  const schedule = await prisma.loadSheddingSchedule.findFirst({
+    where: {
+      id: scheduleId,
+      deletedAt: null,
+    },
+    include: {
+      zone: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+        },
+      },
+      slots: {
+        orderBy: {
+          startTime: "asc",
+        },
+        include: {
+          feeder: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+              capacityMW: true,
+              currentLoadMW: true,
+              priority: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!schedule) {
+    throw new AppError(404, "Load shedding schedule not found");
+  }
+
+  // Zone Manager can only view schedules from their own zone
+  if (userRole === UserRole.ZONE_MANAGER) {
+    const manager = await prisma.user.findFirst({
+      where: {
+        id: userId,
+        role: UserRole.ZONE_MANAGER,
+        zoneId: schedule.zoneId,
+        isActive: true,
+        deletedAt: null,
+      },
+    });
+
+    if (!manager) {
+      throw new AppError(
+        403,
+        "You are not allowed to view this schedule",
+      );
+    }
+  }
+
+  return schedule;
+};
+
 export const LoadSheddingService = {
   createSchedule,
   createScheduleSlot,
+  getSchedules,
+  getScheduleById,
 };
