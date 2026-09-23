@@ -49,14 +49,14 @@ app.use("/api/v1/load-shedding", LoadSheddingRoutes);
 app.get("/health", (_req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
     success: true,
-    message: "Load Shedding & Power Management API is running ⚡",
+    message: "Load Shedding & Power Management API is running ⚡ Mahib Alam Khan AIUB",
   });
 });
 
 app.get("/", (_req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
     success: true,
-    message: "Welcome to Load Shedding & Power Management ⚡",
+    message: "Welcome to Load Shedding & Power Management ⚡ Mahib Alam Khan AIUB CSE",
   });
 });
 
