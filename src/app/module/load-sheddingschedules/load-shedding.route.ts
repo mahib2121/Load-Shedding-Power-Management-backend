@@ -29,5 +29,10 @@ router.get(
   auth(UserRole.SUPER_ADMIN, UserRole.ZONE_MANAGER),
   LoadSheddingController.getScheduleById,
 );
+router.get(
+  "/schedules/:scheduleId/slots",
+  auth(UserRole.SUPER_ADMIN, UserRole.ZONE_MANAGER),
+  LoadSheddingController.getScheduleSlots,
+);
 
 export const LoadSheddingRoutes = router;

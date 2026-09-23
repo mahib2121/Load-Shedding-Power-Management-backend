@@ -209,7 +209,6 @@ const createScheduleSlot = async (
   return slot;
 };
 
-
 const getSchedules = async (
   userId: string,
   userRole: UserRole,
@@ -352,14 +351,71 @@ const getScheduleById = async (
     });
 
     if (!manager) {
-      throw new AppError(
-        403,
-        "You are not allowed to view this schedule",
-      );
+      throw new AppError(403, "You are not allowed to view this schedule");
     }
   }
 
   return schedule;
+};
+
+const getScheduleSlots = async (
+  scheduleId: string,
+  userId: string,
+  userRole: UserRole,
+) => {
+  // 1. Check schedule exists
+  const schedule = await prisma.loadSheddingSchedule.findFirst({
+    where: {
+      id: scheduleId,
+      deletedAt: null,
+    },
+  });
+
+  if (!schedule) {
+    throw new AppError(404, "Load shedding schedule not found");
+  }
+
+  // 2. Zone Manager can only view slots
+  //    from schedules in their own zone
+  if (userRole === UserRole.ZONE_MANAGER) {
+    const manager = await prisma.user.findFirst({
+      where: {
+        id: userId,
+        role: UserRole.ZONE_MANAGER,
+        zoneId: schedule.zoneId,
+        isActive: true,
+        deletedAt: null,
+      },
+    });
+
+    if (!manager) {
+      throw new AppError(403, "You are not allowed to view this schedule");
+    }
+  }
+
+  // 3. Get schedule slots
+  const slots = await prisma.scheduleSlot.findMany({
+    where: {
+      scheduleId,
+    },
+    orderBy: {
+      startTime: "asc",
+    },
+    include: {
+      feeder: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          capacityMW: true,
+          currentLoadMW: true,
+          priority: true,
+        },
+      },
+    },
+  });
+
+  return slots;
 };
 
 export const LoadSheddingService = {
@@ -367,4 +423,5 @@ export const LoadSheddingService = {
   createScheduleSlot,
   getSchedules,
   getScheduleById,
+  getScheduleSlots,
 };

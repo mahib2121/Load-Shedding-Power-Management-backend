@@ -68,10 +68,25 @@ const getScheduleById = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const getScheduleSlots = catchAsync(async (req: Request, res: Response) => {
+  const result = await LoadSheddingService.getScheduleSlots(
+    req.params.scheduleId as string,
+    req.user!.userId,
+    req.user!.role,
+  );
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Schedule slots retrieved successfully",
+    data: result,
+  });
+});
 
 export const LoadSheddingController = {
   createSchedule,
   createScheduleSlot,
   getScheduleById,
   getSchedules,
+  getScheduleSlots,
 };
