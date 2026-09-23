@@ -40,5 +40,9 @@ router.delete(
   auth(UserRole.SUPER_ADMIN, UserRole.ZONE_MANAGER),
   LoadSheddingController.deleteScheduleSlot,
 );
-
+router.post(
+  "/schedules/:scheduleId/submit",
+  auth(UserRole.SUPER_ADMIN, UserRole.ZONE_MANAGER),
+  LoadSheddingController.submitSchedule,
+);
 export const LoadSheddingRoutes = router;

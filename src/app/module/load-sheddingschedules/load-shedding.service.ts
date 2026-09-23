@@ -473,6 +473,92 @@ const deleteScheduleSlot = async (
     },
   });
 };
+const submitSchedule = async (
+  scheduleId: string,
+  userId: string,
+  userRole: UserRole,
+) => {
+  // 1. Find schedule with slots
+  const schedule = await prisma.loadSheddingSchedule.findFirst({
+    where: {
+      id: scheduleId,
+      deletedAt: null,
+    },
+    include: {
+      slots: true,
+    },
+  });
+
+  if (!schedule) {
+    throw new AppError(404, "Load shedding schedule not found");
+  }
+
+  // 2. Only DRAFT schedules can be submitted
+  if (schedule.status !== ScheduleStatus.DRAFT) {
+    throw new AppError(
+      400,
+      "Only DRAFT schedules can be submitted for approval",
+    );
+  }
+
+  // 3. Zone Manager can only submit schedules
+  //    belonging to their own zone
+  if (userRole === UserRole.ZONE_MANAGER) {
+    const manager = await prisma.user.findFirst({
+      where: {
+        id: userId,
+        role: UserRole.ZONE_MANAGER,
+        zoneId: schedule.zoneId,
+        isActive: true,
+        deletedAt: null,
+      },
+    });
+
+    if (!manager) {
+      throw new AppError(403, "You are not allowed to submit this schedule");
+    }
+  }
+
+  // 4. Schedule must have at least one slot
+  if (schedule.slots.length === 0) {
+    throw new AppError(
+      400,
+      "Schedule must contain at least one slot before submission",
+    );
+  }
+
+  // 5. Calculate total planned reduction
+  const totalPlannedReductionMW = schedule.slots.reduce(
+    (total, slot) => total + slot.plannedLoadReductionMW,
+    0,
+  );
+
+  // 6. Make sure required reduction is satisfied
+  if (totalPlannedReductionMW < schedule.requiredReductionMW) {
+    const remainingReductionMW =
+      schedule.requiredReductionMW - totalPlannedReductionMW;
+
+    throw new AppError(
+      400,
+      `Schedule does not satisfy required load reduction. ` +
+        `Required: ${schedule.requiredReductionMW} MW, ` +
+        `Planned: ${totalPlannedReductionMW} MW, ` +
+        `Remaining: ${remainingReductionMW} MW`,
+    );
+  }
+
+  // 7. Submit schedule
+  const updatedSchedule = await prisma.loadSheddingSchedule.update({
+    where: {
+      id: scheduleId,
+    },
+    data: {
+      status: ScheduleStatus.PENDING_APPROVAL,
+    },
+  });
+
+  return updatedSchedule;
+};
 
 export const LoadSheddingService = {
   createSchedule,
@@ -481,4 +567,5 @@ export const LoadSheddingService = {
   getScheduleById,
   getScheduleSlots,
   deleteScheduleSlot,
+  submitSchedule,
 };

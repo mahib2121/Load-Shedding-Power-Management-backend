@@ -95,6 +95,22 @@ const deleteScheduleSlot = catchAsync(async (req: Request, res: Response) => {
     message: "Schedule slot deleted successfully",
   });
 });
+
+const submitSchedule = catchAsync(async (req: Request, res: Response) => {
+  const result = await LoadSheddingService.submitSchedule(
+    req.params.scheduleId as string,
+    req.user!.userId,
+    req.user!.role,
+  );
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Load shedding schedule submitted for approval",
+    data: result,
+  });
+});
+
 export const LoadSheddingController = {
   createSchedule,
   createScheduleSlot,
@@ -102,4 +118,5 @@ export const LoadSheddingController = {
   getSchedules,
   getScheduleSlots,
   deleteScheduleSlot,
+  submitSchedule,
 };
