@@ -18,7 +18,24 @@ const CreateScheduleZodSchema = z.object({
 
   zoneId: z.string().uuid("Invalid zone ID"),
 });
+const CreateScheduleSlotZodSchema = z.object({
+  feederId: z.string().uuid("Invalid feeder ID"),
 
+  startTime: z.coerce.date(),
+
+  endTime: z.coerce.date(),
+
+  durationHours: z
+    .number()
+    .int()
+    .min(1, "Duration must be at least 1 hour")
+    .max(2, "Duration cannot exceed 2 hours"),
+
+  plannedLoadReductionMW: z
+    .number()
+    .positive("Planned load reduction must be greater than 0"),
+});
 export const LoadSheddingValidation = {
   CreateScheduleZodSchema,
+  CreateScheduleSlotZodSchema,
 };

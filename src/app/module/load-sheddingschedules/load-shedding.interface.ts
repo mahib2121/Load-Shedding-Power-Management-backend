@@ -5,3 +5,10 @@ export interface ICreateSchedulePayload {
   availableSupplyMW: number;
   zoneId: string;
 }
+export interface ICreateScheduleSlotPayload {
+  feederId: string;
+  startTime: Date;
+  endTime: Date;
+  durationHours: number;
+  plannedLoadReductionMW: number;
+}
