@@ -418,10 +418,67 @@ const getScheduleSlots = async (
   return slots;
 };
 
+const deleteScheduleSlot = async (
+  slotId: string,
+  userId: string,
+  userRole: UserRole,
+) => {
+  // 1. Find slot with its schedule
+  const slot = await prisma.scheduleSlot.findFirst({
+    where: {
+      id: slotId,
+    },
+    include: {
+      schedule: true,
+    },
+  });
+
+  if (!slot) {
+    throw new AppError(404, "Schedule slot not found");
+  }
+
+  // 2. Slot can only be deleted from a DRAFT schedule
+  if (slot.schedule.status !== ScheduleStatus.DRAFT) {
+    throw new AppError(
+      400,
+      "Schedule slots can only be deleted from a DRAFT schedule",
+    );
+  }
+
+  // 3. Zone Manager can only modify schedules
+  //    belonging to their own zone
+  if (userRole === UserRole.ZONE_MANAGER) {
+    const manager = await prisma.user.findFirst({
+      where: {
+        id: userId,
+        role: UserRole.ZONE_MANAGER,
+        zoneId: slot.schedule.zoneId,
+        isActive: true,
+        deletedAt: null,
+      },
+    });
+
+    if (!manager) {
+      throw new AppError(
+        403,
+        "You are not allowed to delete this schedule slot",
+      );
+    }
+  }
+
+  // 4. Delete slot
+  await prisma.scheduleSlot.delete({
+    where: {
+      id: slotId,
+    },
+  });
+};
+
 export const LoadSheddingService = {
   createSchedule,
   createScheduleSlot,
   getSchedules,
   getScheduleById,
   getScheduleSlots,
+  deleteScheduleSlot,
 };

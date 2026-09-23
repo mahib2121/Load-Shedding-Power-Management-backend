@@ -35,4 +35,10 @@ router.get(
   LoadSheddingController.getScheduleSlots,
 );
 
+router.delete(
+  "/slots/:slotId",
+  auth(UserRole.SUPER_ADMIN, UserRole.ZONE_MANAGER),
+  LoadSheddingController.deleteScheduleSlot,
+);
+
 export const LoadSheddingRoutes = router;

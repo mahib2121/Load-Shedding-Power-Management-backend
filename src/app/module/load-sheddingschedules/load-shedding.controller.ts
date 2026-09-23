@@ -82,11 +82,24 @@ const getScheduleSlots = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const deleteScheduleSlot = catchAsync(async (req: Request, res: Response) => {
+  await LoadSheddingService.deleteScheduleSlot(
+    req.params.slotId as string,
+    req.user!.userId,
+    req.user!.role,
+  );
 
+  res.status(httpStatus.OK).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Schedule slot deleted successfully",
+  });
+});
 export const LoadSheddingController = {
   createSchedule,
   createScheduleSlot,
   getScheduleById,
   getSchedules,
   getScheduleSlots,
+  deleteScheduleSlot,
 };
