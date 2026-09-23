@@ -1,0 +1,360 @@
+{
+  "info": {
+    "_postman_id": "12c613ab-c666-4226-897f-3d73e8f6c479",
+    "name": "Power Managment PH",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56299985",
+    "_collection_link": "https://go.postman.co/collection/56299985-12c613ab-c666-4226-897f-3d73e8f6c479?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Load Shedding schedule",
+      "item": [
+        {
+          "name": "Load-sheddingSchedules",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Dhaka North Evening Load Shedding\",\r\n  \"date\": \"2026-09-25\",\r\n  \"expectedDemandMW\": 120,\r\n  \"availableSupplyMW\": 90,\r\n  \"zoneId\": \"dc3b965c-f1d1-42c4-aed7-c18f42a1bfe8\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "load-shedding",
+                "schedules"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Load-shedding Slot",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"feederId\": \"12663b7d-60a0-4ebe-acdd-62df87879bb8\",\r\n  \"startTime\": \"2026-09-25T18:00:00+06:00\",\r\n  \"endTime\": \"2026-09-25T20:00:00+06:00\",\r\n  \"durationHours\": 2,\r\n  \"plannedLoadReductionMW\": 7.5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules/9fd0e31c-3402-418a-872a-b02114292e90/slots",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "load-shedding",
+                "schedules",
+                "9fd0e31c-3402-418a-872a-b02114292e90",
+                "slots"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get loadshedding Scheduling",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "load-shedding",
+                "schedules"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Single Schedules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules/9fd0e31c-3402-418a-872a-b02114292e90",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "load-shedding",
+                "schedules",
+                "9fd0e31c-3402-418a-872a-b02114292e90"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Schedule Slots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules/9fd0e31c-3402-418a-872a-b02114292e90/slots",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "load-shedding",
+                "schedules",
+                "9fd0e31c-3402-418a-872a-b02114292e90",
+                "slots"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"zonemanager@gmail.com\",\r\n    \"password\": \"Zone@manager12345\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/login",
+          "protocol": "https",
+          "host": [
+            "backend-lime-six-68",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Google Login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"idToken\": \"YOUR_GOOGLE_ID_TOKEN\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/google",
+          "protocol": "https",
+          "host": [
+            "backend-lime-six-68",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "google"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GetMe",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/me",
+          "protocol": "https",
+          "host": [
+            "backend-lime-six-68",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "logout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/logout",
+          "protocol": "https",
+          "host": [
+            "backend-lime-six-68",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "   {\r\n     \"name\": \"Mahib Khan93\",\r\n     \"email\": \"mahib11indo@gmail.com\",\r\n     \"password\": \"Ma123@456#\",\r\n     \"phone\": \"01700000000\",\r\n     \"areaId\": \"88036085-8c2f-4503-95fe-8cfea1a9e756\"\r\n   }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/register",
+          "protocol": "https",
+          "host": [
+            "backend-lime-six-68",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "forgetPassword",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"mahib11indo@gmail.com\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/forgot-password",
+          "protocol": "https",
+          "host": [
+            "backend-lime-six-68",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "forgot-password"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "reset-password",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"mahib11indo@gmail.com\",\r\n    \"newPassword\":\"fuckCorono\",\r\n    \"otp\":\"146928\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/reset-password",
+          "protocol": "https",
+          "host": [
+            "backend-lime-six-68",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "reset-password"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
