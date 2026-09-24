@@ -5,6 +5,7 @@ import type {
   ICreateScheduleSlotPayload,
 } from "./load-shedding.interface";
 import { ScheduleStatus, UserRole } from "../../../generated/prisma/browser";
+import httpStatus from "http-status";
 
 const createSchedule = async (
   payload: ICreateSchedulePayload,
@@ -559,7 +560,120 @@ const submitSchedule = async (
 
   return updatedSchedule;
 };
+const approveSchedule = async (scheduleId: string) => {
+  const schedule = await prisma.loadSheddingSchedule.findFirst({
+    where: {
+      id: scheduleId,
+      deletedAt: null,
+    },
+  });
 
+  if (!schedule) {
+    throw new AppError(httpStatus.NOT_FOUND, "Schedule not found");
+  }
+
+  if (schedule.status !== ScheduleStatus.PENDING_APPROVAL) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Only schedules pending approval can be approved",
+    );
+  }
+
+  const updatedSchedule = await prisma.loadSheddingSchedule.update({
+    where: {
+      id: scheduleId,
+    },
+    data: {
+      status: ScheduleStatus.APPROVED,
+    },
+    include: {
+      zone: true,
+      slots: {
+        include: {
+          feeder: true,
+        },
+      },
+    },
+  });
+
+  return updatedSchedule;
+};
+const rejectSchedule = async (scheduleId: string) => {
+  const schedule = await prisma.loadSheddingSchedule.findFirst({
+    where: {
+      id: scheduleId,
+      deletedAt: null,
+    },
+  });
+
+  if (!schedule) {
+    throw new AppError(httpStatus.NOT_FOUND, "Schedule not found");
+  }
+
+  if (schedule.status !== ScheduleStatus.PENDING_APPROVAL) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Only schedules pending approval can be rejected",
+    );
+  }
+
+  const updatedSchedule = await prisma.loadSheddingSchedule.update({
+    where: {
+      id: scheduleId,
+    },
+    data: {
+      status: ScheduleStatus.DRAFT,
+    },
+    include: {
+      zone: true,
+      slots: {
+        include: {
+          feeder: true,
+        },
+      },
+    },
+  });
+
+  return updatedSchedule;
+};
+const activateSchedule = async (scheduleId: string) => {
+  const schedule = await prisma.loadSheddingSchedule.findFirst({
+    where: {
+      id: scheduleId,
+      deletedAt: null,
+    },
+  });
+
+  if (!schedule) {
+    throw new AppError(httpStatus.NOT_FOUND, "Schedule not found");
+  }
+
+  if (schedule.status !== ScheduleStatus.APPROVED) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Only approved schedules can be activated",
+    );
+  }
+
+  const updatedSchedule = await prisma.loadSheddingSchedule.update({
+    where: {
+      id: scheduleId,
+    },
+    data: {
+      status: ScheduleStatus.ACTIVE,
+    },
+    include: {
+      zone: true,
+      slots: {
+        include: {
+          feeder: true,
+        },
+      },
+    },
+  });
+
+  return updatedSchedule;
+};
 export const LoadSheddingService = {
   createSchedule,
   createScheduleSlot,
@@ -568,4 +682,7 @@ export const LoadSheddingService = {
   getScheduleSlots,
   deleteScheduleSlot,
   submitSchedule,
+  approveSchedule,
+  rejectSchedule,
+  activateSchedule,
 };

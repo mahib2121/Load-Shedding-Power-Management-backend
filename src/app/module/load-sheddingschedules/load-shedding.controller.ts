@@ -1,5 +1,6 @@
 import { ScheduleStatus } from "../../../generated/prisma/browser";
 import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
 import { LoadSheddingService } from "./load-shedding.service";
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
@@ -111,6 +112,47 @@ const submitSchedule = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const approveSchedule = catchAsync(async (req, res) => {
+  const { scheduleId } = req.params;
+
+  const result = await LoadSheddingService.approveSchedule(
+    scheduleId as string,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Schedule approved successfully",
+    data: result,
+  });
+});
+const rejectSchedule = catchAsync(async (req, res) => {
+  const { scheduleId } = req.params;
+
+  const result = await LoadSheddingService.rejectSchedule(scheduleId as string);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Schedule rejected successfully",
+    data: result,
+  });
+});
+
+const activateSchedule = catchAsync(async (req, res) => {
+  const { scheduleId } = req.params;
+
+  const result = await LoadSheddingService.activateSchedule(
+    scheduleId as string,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Schedule activated successfully",
+    data: result,
+  });
+});
 export const LoadSheddingController = {
   createSchedule,
   createScheduleSlot,
@@ -119,4 +161,7 @@ export const LoadSheddingController = {
   getScheduleSlots,
   deleteScheduleSlot,
   submitSchedule,
+  approveSchedule,
+  rejectSchedule,
+  activateSchedule,
 };

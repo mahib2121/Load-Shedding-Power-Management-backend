@@ -35,7 +35,12 @@ const CreateScheduleSlotZodSchema = z.object({
     .number()
     .positive("Planned load reduction must be greater than 0"),
 });
+
+const ScheduleIdParamsSchema = z.object({
+  scheduleId: z.string().uuid("Invalid schedule ID"),
+});
 export const LoadSheddingValidation = {
   CreateScheduleZodSchema,
   CreateScheduleSlotZodSchema,
+  ScheduleIdParamsSchema,
 };

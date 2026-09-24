@@ -45,4 +45,22 @@ router.post(
   auth(UserRole.SUPER_ADMIN, UserRole.ZONE_MANAGER),
   LoadSheddingController.submitSchedule,
 );
+
+router.post(
+  "/schedules/:scheduleId/approve",
+  auth(UserRole.SUPER_ADMIN),
+  LoadSheddingController.approveSchedule,
+);
+router.post(
+  "/schedules/:scheduleId/reject",
+  auth(UserRole.SUPER_ADMIN),
+ 
+  LoadSheddingController.rejectSchedule,
+);
+
+router.post(
+  "/schedules/:scheduleId/activate",
+  auth(UserRole.SUPER_ADMIN),
+  LoadSheddingController.activateSchedule,
+);
 export const LoadSheddingRoutes = router;
