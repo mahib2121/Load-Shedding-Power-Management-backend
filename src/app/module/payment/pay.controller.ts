@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import httpStatus from "http-status";
 
 import { catchAsync } from "../../utils/catchAsync";
+
 import { PaymentService } from "./pay.service";
 
 const initialPayment = catchAsync(async (req: Request, res: Response) => {
@@ -18,6 +19,18 @@ const initialPayment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const ipn = catchAsync(async (req: Request, res: Response) => {
+  const result = await PaymentService.handleIPN(req.body);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "IPN received successfully",
+    data: result,
+  });
+});
+
 export const PaymentController = {
   initialPayment,
+  ipn,
 };

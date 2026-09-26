@@ -4,6 +4,7 @@ import { PaymentStatus } from "../../../generated/prisma/enums";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
+import { ISSLCommerzIPN } from "./pay.interface";
 
 const initialPayment = async (paymentId: string, userId: string) => {
   // 1. Find pending payment belonging to the authenticated customer
@@ -35,6 +36,7 @@ const initialPayment = async (paymentId: string, userId: string) => {
     success_url: "http://localhost:5000/api/v1/payments/success",
     fail_url: "http://localhost:5000/api/v1/payments/fail",
     cancel_url: "http://localhost:5000/api/v1/payments/cancel",
+    ipn_url: "https://backend-lime-six-68.vercel.app/api/v1/payments/ipn",
 
     cus_name: payment.user.name,
     cus_email: payment.user.email,
@@ -77,6 +79,94 @@ const initialPayment = async (paymentId: string, userId: string) => {
   return response.data;
 };
 
+const handleIPN = async (payload: ISSLCommerzIPN) => {
+  const { val_id } = payload;
+
+  if (!val_id) {
+    throw new AppError(400, "SSLCommerz validation ID is missing");
+  }
+
+  const validationResult = await validateSSLCommerzPayment(val_id);
+
+  console.log("SSLCommerz validation result:", validationResult);
+
+  if (
+    validationResult.status !== "VALID" &&
+    validationResult.status !== "VALIDATED"
+  ) {
+    throw new AppError(400, "SSLCommerz transaction validation failed");
+  }
+
+  const payment = await prisma.payment.findUnique({
+    where: {
+      id: validationResult.tran_id,
+    },
+  });
+
+  if (!payment) {
+    throw new AppError(404, "Payment transaction not found");
+  }
+
+  if (payment.currency !== validationResult.currency) {
+    throw new AppError(400, "Payment currency mismatch");
+  }
+
+  const gatewayAmount = Number(validationResult.amount);
+
+  if (payment.amount !== gatewayAmount) {
+    throw new AppError(400, "Payment amount mismatch");
+  }
+
+  // Payment already processed
+  if (payment.status === PaymentStatus.PAID) {
+    return {
+      paymentId: payment.id,
+      transactionId: validationResult.tran_id,
+      status: payment.status,
+      amount: payment.amount,
+      currency: payment.currency,
+      valId: validationResult.val_id,
+      message: "Payment was already processed",
+    };
+  }
+
+  const updatedPayment = await prisma.payment.update({
+    where: {
+      id: payment.id,
+    },
+    data: {
+      status: PaymentStatus.PAID,
+      transactionId: validationResult.tran_id,
+      gatewayResponse: validationResult,
+    },
+  });
+
+  return {
+    paymentId: updatedPayment.id,
+    transactionId: updatedPayment.transactionId,
+    status: updatedPayment.status,
+    amount: updatedPayment.amount,
+    currency: updatedPayment.currency,
+    valId: validationResult.val_id,
+  };
+};
+const validateSSLCommerzPayment = async (valId: string) => {
+  const response = await axios.get(
+    "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php",
+    {
+      params: {
+        val_id: valId,
+        store_id: config.sslstoreid,
+        store_passwd: config.sslstorepassword,
+        format: "json",
+      },
+      timeout: 30000,
+    },
+  );
+
+  return response.data;
+};
 export const PaymentService = {
   initialPayment,
+  handleIPN,
 };
