@@ -147,6 +147,273 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Approve Schidule SuperAdmin",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "rejectSchedule",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/api/v1/schedules/{scheduleId}/reject",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "load-shedding",
+                "api",
+                "v1",
+                "schedules",
+                "{scheduleId}",
+                "reject"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "activateSchedule",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules/9fd0e31c-3402-418a-872a-b02114292e90/activate",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "load-shedding",
+                "schedules",
+                "9fd0e31c-3402-418a-872a-b02114292e90",
+                "activate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My schidule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/my-schedule",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "load-shedding",
+                "my-schedule"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Outage Report",
+      "item": [
+        {
+          "name": "Report Create",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"description\": \"3 There has been no electricity in my area for more than one hour 2.\",\r\n  \"latitude\": 23.8069,\r\n  \"longitude\": 90.3687\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/outages/reports",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "outages",
+                "reports"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Outage",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/outages/a464a123-98d0-49b5-a667-c6fbe91a1ddf/verify",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "outages",
+                "a464a123-98d0-49b5-a667-c6fbe91a1ddf",
+                "verify"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign technician BY manager",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"technicianId\": \"56a96af4-c6c0-4aef-bcdc-0a18f86961db\",\r\n  \"notes\": \"Please inspect the feeder connection and restore power.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://backend-lime-six-68.vercel.app/api/v1/outages/a464a123-98d0-49b5-a667-c6fbe91a1ddf/assign",
+              "protocol": "https",
+              "host": [
+                "backend-lime-six-68",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "outages",
+                "a464a123-98d0-49b5-a667-c6fbe91a1ddf",
+                "assign"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Start Repair by technician",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Repair Complete By Technician",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payment",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "payment Validation IPN",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"val_id\": \"test123\",\r\n  \"tran_id\": \"test-payment-id\",\r\n  \"amount\": \"100.00\",\r\n  \"currency\": \"BDT\",\r\n  \"status\": \"VALID\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/v1/payments/ipn",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "ipn"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
