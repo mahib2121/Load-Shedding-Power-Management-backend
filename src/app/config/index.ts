@@ -51,6 +51,8 @@ const config = {
   cloudName: process.env.cloudName,
   cloudAPIkey: process.env.cloudApiKey,
   cloudAPIsecret: process.env.cloudApiSecret,
+  sslstoreid: process.env.SSLStoreID,
+  sslstorepassword: process.env.SSLStorePassword,
 };
 
 export default config;
