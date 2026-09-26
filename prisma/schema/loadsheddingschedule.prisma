@@ -1,24 +1,24 @@
 model LoadSheddingSchedule {
-  id                  String         @id @default(uuid())
+  id String @id @default(uuid())
 
-  name                String
-  date                DateTime
+  name String
+  date DateTime
 
   expectedDemandMW    Float
   availableSupplyMW   Float
   requiredReductionMW Float
 
-  status              ScheduleStatus @default(DRAFT)
+  status ScheduleStatus @default(DRAFT)
 
-  zoneId              String
+  zoneId String
 
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
-  deletedAt           DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   // Relationships
-  zone                Zone           @relation(fields: [zoneId], references: [id])
-  slots               ScheduleSlot[]
+  zone  Zone           @relation(fields: [zoneId], references: [id])
+  slots ScheduleSlot[]
 
   @@index([zoneId])
   @@index([date])

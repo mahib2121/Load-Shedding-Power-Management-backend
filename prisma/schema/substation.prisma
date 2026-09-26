@@ -1,20 +1,20 @@
 model Substation {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  name      String
-  code      String   @unique
+  name String
+  code String @unique
 
   capacityMW Float?
 
-  zoneId    String
+  zoneId String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   // Relationships
-  zone      Zone     @relation(fields: [zoneId], references: [id])
-  feeders   Feeder[]
+  zone    Zone     @relation(fields: [zoneId], references: [id])
+  feeders Feeder[]
 
   @@index([zoneId])
   @@index([deletedAt])

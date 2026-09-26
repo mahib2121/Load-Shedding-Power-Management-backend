@@ -1,0 +1,23 @@
+model Payment {
+  id       String         @id @default(uuid())
+  amount   Float
+  currency String         @default("BDT")
+  status   PaymentStatus  @default(PENDING)
+  method   PaymentMethod?
+
+  transactionId    String? @unique
+  gatewaySessionId String?
+  gatewayResponse  Json?
+
+  userId         String
+  outageReportId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id])
+  outageReport OutageReport @relation(fields: [outageReportId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}

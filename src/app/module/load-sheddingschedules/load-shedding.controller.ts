@@ -153,6 +153,17 @@ const activateSchedule = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+const getMySchedule = catchAsync(async (req, res) => {
+  const result = await LoadSheddingService.getMySchedule(req.user!.userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Load-shedding schedule retrieved successfully",
+    data: result,
+  });
+});
 export const LoadSheddingController = {
   createSchedule,
   createScheduleSlot,
@@ -164,4 +175,5 @@ export const LoadSheddingController = {
   approveSchedule,
   rejectSchedule,
   activateSchedule,
+  getMySchedule,
 };

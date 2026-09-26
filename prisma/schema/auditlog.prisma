@@ -1,13 +1,13 @@
 model AuditLog {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  userId    String?
-  action    String
-  entity    String
-  entityId  String?
+  userId   String?
+  action   String
+  entity   String
+  entityId String?
 
-  oldData   Json?
-  newData   Json?
+  oldData Json?
+  newData Json?
 
   ipAddress String?
   userAgent String?

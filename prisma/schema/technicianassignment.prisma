@@ -1,17 +1,17 @@
 model TechnicianAssignment {
-  id           String           @id @default(uuid())
+  id String @id @default(uuid())
 
   outageId     String
   technicianId String
 
-  status       AssignmentStatus @default(PENDING)
+  status AssignmentStatus @default(PENDING)
 
-  assignedAt   DateTime         @default(now())
-  acceptedAt   DateTime?
-  startedAt    DateTime?
-  completedAt  DateTime?
+  assignedAt  DateTime  @default(now())
+  acceptedAt  DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
 
-  notes        String?
+  notes String?
 
   outage     Outage @relation(fields: [outageId], references: [id])
   technician User   @relation(fields: [technicianId], references: [id])

@@ -1,21 +1,22 @@
 model OutageReport {
-  id          String   @id @default(uuid())
+  id String @id @default(uuid())
 
   description String?
 
-  latitude    Float?
-  longitude   Float?
+  latitude  Float?
+  longitude Float?
 
-  userId      String
-  areaId      String
-  outageId    String?
+  userId   String
+  areaId   String
+  outageId String?
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   // Relationships
-  user        User    @relation(fields: [userId], references: [id])
-  area        Area    @relation(fields: [areaId], references: [id])
-  outage      Outage? @relation(fields: [outageId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+  area    Area     @relation(fields: [areaId], references: [id])
+  outage  Outage?  @relation(fields: [outageId], references: [id])
+  payment Payment?
 
   @@index([userId])
   @@index([areaId])

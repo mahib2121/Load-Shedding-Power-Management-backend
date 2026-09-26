@@ -1,30 +1,30 @@
 model Outage {
-  id          String         @id @default(uuid())
+  id String @id @default(uuid())
 
   title       String
   description String?
 
-  status      OutageStatus   @default(REPORTED)
-  severity    OutageSeverity @default(MEDIUM)
+  status   OutageStatus   @default(REPORTED)
+  severity OutageSeverity @default(MEDIUM)
 
-  zoneId      String
-  feederId    String
-  areaId      String
+  zoneId   String
+  feederId String
+  areaId   String
 
-  reportedAt  DateTime       @default(now())
-  verifiedAt  DateTime?
-  startedAt   DateTime?
-  restoredAt  DateTime?
-  closedAt    DateTime?
+  reportedAt DateTime  @default(now())
+  verifiedAt DateTime?
+  startedAt  DateTime?
+  restoredAt DateTime?
+  closedAt   DateTime?
 
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  deletedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   // Relationships
-  zone        Zone                   @relation(fields: [zoneId], references: [id])
-  feeder      Feeder                 @relation(fields: [feederId], references: [id])
-  area        Area                   @relation(fields: [areaId], references: [id])
+  zone   Zone   @relation(fields: [zoneId], references: [id])
+  feeder Feeder @relation(fields: [feederId], references: [id])
+  area   Area   @relation(fields: [areaId], references: [id])
 
   reports     OutageReport[]
   assignments TechnicianAssignment[]

@@ -1,21 +1,21 @@
 model Feeder {
-  id            String         @id @default(uuid())
+  id String @id @default(uuid())
 
-  name          String
-  code          String         @unique
+  name String
+  code String @unique
 
   capacityMW    Float
-  currentLoadMW Float          @default(0)
+  currentLoadMW Float @default(0)
 
-  priority      FeederPriority @default(NORMAL)
+  priority FeederPriority @default(NORMAL)
 
-  substationId  String
+  substationId String
 
-  isActive      Boolean        @default(true)
+  isActive Boolean @default(true)
 
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  deletedAt     DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   // Relationships
   substation    Substation     @relation(fields: [substationId], references: [id])

@@ -56,3 +56,15 @@ enum NotificationType {
   SCHEDULE_APPROVED
   SYSTEM
 }
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  SSLCOMMERZ
+}

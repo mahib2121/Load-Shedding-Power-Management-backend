@@ -11,6 +11,7 @@ import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
 import { AuthRoutes } from "./app/module/auth/auth.route";
 import { LoadSheddingRoutes } from "./app/module/load-sheddingschedules/load-shedding.route";
+import { OutageRoutes } from "./app/module/OutageReport/outage.route";
 
 const app: Application = express();
 app.use(
@@ -30,6 +31,7 @@ app.use(
 app.use(cookieParser());
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/load-shedding", LoadSheddingRoutes);
+app.use("/api/v1/outages", OutageRoutes);
 /*
  * Future modules:
  *

@@ -1,18 +1,18 @@
 model ScheduleSlot {
-  id                     String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  scheduleId             String
-  feederId               String
+  scheduleId String
+  feederId   String
 
-  startTime              DateTime
-  endTime                DateTime
+  startTime DateTime
+  endTime   DateTime
 
-  durationHours          Int
+  durationHours Int
 
   plannedLoadReductionMW Float
 
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   schedule LoadSheddingSchedule @relation(fields: [scheduleId], references: [id])
   feeder   Feeder               @relation(fields: [feederId], references: [id])

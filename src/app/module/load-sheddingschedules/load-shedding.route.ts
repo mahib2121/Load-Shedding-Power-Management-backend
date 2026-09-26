@@ -54,7 +54,7 @@ router.post(
 router.post(
   "/schedules/:scheduleId/reject",
   auth(UserRole.SUPER_ADMIN),
- 
+
   LoadSheddingController.rejectSchedule,
 );
 
@@ -62,5 +62,10 @@ router.post(
   "/schedules/:scheduleId/activate",
   auth(UserRole.SUPER_ADMIN),
   LoadSheddingController.activateSchedule,
+);
+router.get(
+  "/my-schedule",
+  auth(UserRole.CUSTOMER),
+  LoadSheddingController.getMySchedule,
 );
 export const LoadSheddingRoutes = router;

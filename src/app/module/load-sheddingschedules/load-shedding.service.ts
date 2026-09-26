@@ -674,6 +674,77 @@ const activateSchedule = async (scheduleId: string) => {
 
   return updatedSchedule;
 };
+const getMySchedule = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      areaId: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (!user.areaId) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "You are not assigned to an area",
+    );
+  }
+
+  const schedules = await prisma.loadSheddingSchedule.findMany({
+    where: {
+      status: ScheduleStatus.ACTIVE,
+      deletedAt: null,
+      slots: {
+        some: {
+          feeder: {
+            areas: {
+              some: {
+                id: user.areaId,
+                deletedAt: null,
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      date: "asc",
+    },
+    include: {
+      slots: {
+        where: {
+          feeder: {
+            areas: {
+              some: {
+                id: user.areaId,
+                deletedAt: null,
+              },
+            },
+          },
+        },
+        orderBy: {
+          startTime: "asc",
+        },
+        include: {
+          feeder: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return schedules;
+};
 export const LoadSheddingService = {
   createSchedule,
   createScheduleSlot,
@@ -685,4 +756,5 @@ export const LoadSheddingService = {
   approveSchedule,
   rejectSchedule,
   activateSchedule,
+  getMySchedule,
 };
