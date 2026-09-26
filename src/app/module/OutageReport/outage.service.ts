@@ -1,4 +1,10 @@
-import { PaymentStatus, UserRole } from "../../../generated/prisma/enums";
+import {
+  AssignmentStatus,
+  JobType,
+  OutageStatus,
+  PaymentStatus,
+  UserRole,
+} from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import type { ICreateOutageReportPayload } from "./outage.interface";
@@ -114,6 +120,352 @@ const createOutageReport = async (
   };
 };
 
+const verifyOutage = async (
+  outageId: string,
+  user: {
+    userId: string;
+    role: UserRole;
+    zoneId?: string | null;
+  },
+) => {
+  const outage = await prisma.outage.findUnique({
+    where: {
+      id: outageId,
+    },
+  });
+
+  if (!outage) {
+    throw new AppError(404, "Outage not found");
+  }
+
+  if (outage.status !== OutageStatus.REPORTED) {
+    throw new AppError(
+      400,
+      `Outage cannot be verified from ${outage.status} status`,
+    );
+  }
+
+  // Zone Manager can only verify outages inside their zone
+  if (user.role === UserRole.ZONE_MANAGER && outage.zoneId !== user.zoneId) {
+    throw new AppError(403, "You can only verify outages in your zone");
+  }
+
+  const updatedOutage = await prisma.outage.update({
+    where: {
+      id: outage.id,
+    },
+    data: {
+      status: OutageStatus.VERIFIED,
+      verifiedAt: new Date(),
+    },
+  });
+
+  return updatedOutage;
+};
+
+const assignTechnician = async (
+  outageId: string,
+  technicianId: string,
+  notes: string | undefined,
+  user: {
+    userId: string;
+    role: UserRole;
+    zoneId?: string | null;
+  },
+) => {
+  const outage = await prisma.outage.findUnique({
+    where: {
+      id: outageId,
+    },
+  });
+
+  if (!outage) {
+    throw new AppError(404, "Outage not found");
+  }
+
+  if (outage.status !== OutageStatus.VERIFIED) {
+    throw new AppError(
+      400,
+      `Technician can only be assigned to a VERIFIED outage. Current status: ${outage.status}`,
+    );
+  }
+
+  // Zone Manager can only assign technicians
+  // to outages inside their own zone
+  if (user.role === UserRole.ZONE_MANAGER && outage.zoneId !== user.zoneId) {
+    throw new AppError(
+      403,
+      "You can only assign technicians to outages in your zone",
+    );
+  }
+
+  // Find valid technician
+  const technician = await prisma.user.findFirst({
+    where: {
+      id: technicianId,
+      role: UserRole.FIELD_OPERATOR,
+      jobType: JobType.TECHNICIAN,
+      isActive: true,
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      jobType: true,
+      zoneId: true,
+    },
+  });
+
+  if (!technician) {
+    throw new AppError(404, "Active technician not found");
+  }
+
+  // Technician must belong to the same zone
+  if (technician.zoneId !== outage.zoneId) {
+    throw new AppError(400, "Technician does not belong to the outage zone");
+  }
+
+  // Prevent multiple active assignments
+  const existingAssignment = await prisma.technicianAssignment.findFirst({
+    where: {
+      outageId,
+      status: {
+        in: [
+          AssignmentStatus.PENDING,
+          AssignmentStatus.ACCEPTED,
+          AssignmentStatus.IN_PROGRESS,
+        ],
+      },
+    },
+  });
+
+  if (existingAssignment) {
+    throw new AppError(400, "A technician is already assigned to this outage");
+  }
+
+  // Create assignment + update outage atomically
+  return prisma.$transaction(async (tx) => {
+    const assignment = await tx.technicianAssignment.create({
+      data: {
+        outageId,
+        technicianId,
+        status: AssignmentStatus.PENDING,
+        notes,
+      },
+      include: {
+        technician: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
+            jobType: true,
+          },
+        },
+      },
+    });
+
+    const updatedOutage = await tx.outage.update({
+      where: {
+        id: outageId,
+      },
+      data: {
+        status: OutageStatus.ASSIGNED,
+      },
+      include: {
+        zone: true,
+        feeder: true,
+        area: true,
+      },
+    });
+
+    return {
+      outage: updatedOutage,
+      assignment,
+    };
+  });
+};
+
+const startRepair = async (
+  outageId: string,
+  user: {
+    userId: string;
+    role: UserRole;
+    jobType?: JobType | null;
+  },
+) => {
+  // Only technicians can start repair
+  if (user.role !== UserRole.FIELD_OPERATOR) {
+    throw new AppError(403, "Only field operators can start outage repair");
+  }
+
+  if (user.jobType !== JobType.TECHNICIAN) {
+    throw new AppError(403, "Only technicians can start outage repair");
+  }
+
+  const outage = await prisma.outage.findUnique({
+    where: {
+      id: outageId,
+    },
+    include: {
+      assignments: {
+        where: {
+          technicianId: user.userId,
+          status: {
+            in: [AssignmentStatus.PENDING, AssignmentStatus.ACCEPTED],
+          },
+        },
+      },
+    },
+  });
+
+  if (!outage) {
+    throw new AppError(404, "Outage not found");
+  }
+
+  if (outage.status !== OutageStatus.ASSIGNED) {
+    throw new AppError(
+      400,
+      `Repair cannot be started from ${outage.status} status`,
+    );
+  }
+
+  const assignment = outage.assignments[0];
+
+  if (!assignment) {
+    throw new AppError(403, "You are not assigned to this outage");
+  }
+
+  const now = new Date();
+
+  return prisma.$transaction(async (tx) => {
+    const updatedAssignment = await tx.technicianAssignment.update({
+      where: {
+        id: assignment.id,
+      },
+      data: {
+        status: AssignmentStatus.IN_PROGRESS,
+        startedAt: now,
+        acceptedAt: assignment.acceptedAt ?? now,
+      },
+    });
+
+    const updatedOutage = await tx.outage.update({
+      where: {
+        id: outageId,
+      },
+      data: {
+        status: OutageStatus.IN_PROGRESS,
+        startedAt: now,
+      },
+      include: {
+        zone: true,
+        feeder: true,
+        area: true,
+      },
+    });
+
+    return {
+      outage: updatedOutage,
+      assignment: updatedAssignment,
+    };
+  });
+};
+
+const restoreOutage = async (
+  outageId: string,
+  user: {
+    userId: string;
+    role: UserRole;
+    jobType?: JobType | null;
+  },
+) => {
+  // Only technicians can restore power
+  if (user.role !== UserRole.FIELD_OPERATOR) {
+    throw new AppError(403, "Only field operators can restore an outage");
+  }
+
+  if (user.jobType !== JobType.TECHNICIAN) {
+    throw new AppError(403, "Only technicians can restore an outage");
+  }
+
+  const outage = await prisma.outage.findUnique({
+    where: {
+      id: outageId,
+    },
+    include: {
+      assignments: {
+        where: {
+          technicianId: user.userId,
+          status: AssignmentStatus.IN_PROGRESS,
+        },
+      },
+    },
+  });
+
+  if (!outage) {
+    throw new AppError(404, "Outage not found");
+  }
+
+  if (outage.status !== OutageStatus.IN_PROGRESS) {
+    throw new AppError(
+      400,
+      `Outage cannot be restored from ${outage.status} status`,
+    );
+  }
+
+  const assignment = outage.assignments[0];
+
+  if (!assignment) {
+    throw new AppError(
+      403,
+      "You are not the technician currently working on this outage",
+    );
+  }
+
+  const now = new Date();
+
+  return prisma.$transaction(async (tx) => {
+    const updatedAssignment = await tx.technicianAssignment.update({
+      where: {
+        id: assignment.id,
+      },
+      data: {
+        status: AssignmentStatus.COMPLETED,
+        completedAt: now,
+      },
+    });
+
+    const updatedOutage = await tx.outage.update({
+      where: {
+        id: outageId,
+      },
+      data: {
+        status: OutageStatus.RESTORED,
+        restoredAt: now,
+      },
+      include: {
+        zone: true,
+        feeder: true,
+        area: true,
+      },
+    });
+
+    return {
+      outage: updatedOutage,
+      assignment: updatedAssignment,
+    };
+  });
+};
+
 export const OutageService = {
   createOutageReport,
+  verifyOutage,
+  assignTechnician,
+  startRepair,
+  restoreOutage,
 };

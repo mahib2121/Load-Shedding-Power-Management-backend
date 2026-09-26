@@ -101,6 +101,9 @@ const handleIPN = async (payload: ISSLCommerzIPN) => {
     where: {
       id: validationResult.tran_id,
     },
+    include: {
+      outageReport: true,
+    },
   });
 
   if (!payment) {
@@ -117,37 +120,122 @@ const handleIPN = async (payload: ISSLCommerzIPN) => {
     throw new AppError(400, "Payment amount mismatch");
   }
 
-  // Payment already processed
-  if (payment.status === PaymentStatus.PAID) {
-    return {
-      paymentId: payment.id,
-      transactionId: validationResult.tran_id,
-      status: payment.status,
-      amount: payment.amount,
-      currency: payment.currency,
-      valId: validationResult.val_id,
-      message: "Payment was already processed",
-    };
-  }
-
-  const updatedPayment = await prisma.payment.update({
+  const area = await prisma.area.findUnique({
     where: {
-      id: payment.id,
+      id: payment.outageReport.areaId,
     },
-    data: {
-      status: PaymentStatus.PAID,
-      transactionId: validationResult.tran_id,
-      gatewayResponse: validationResult,
+    include: {
+      feeder: {
+        include: {
+          substation: {
+            select: {
+              id: true,
+              zoneId: true,
+            },
+          },
+        },
+      },
     },
   });
 
+  if (!area) {
+    throw new AppError(404, "Outage area not found");
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    // Update payment only if it is still PENDING.
+    const paymentUpdate = await tx.payment.updateMany({
+      where: {
+        id: payment.id,
+        status: PaymentStatus.PENDING,
+      },
+      data: {
+        status: PaymentStatus.PAID,
+        transactionId: validationResult.tran_id,
+        gatewayResponse: validationResult,
+      },
+    });
+
+    // IPN can be delivered more than once.
+    // If another request already processed this payment,
+    // don't create another outage.
+    if (paymentUpdate.count === 0) {
+      const existingPayment = await tx.payment.findUnique({
+        where: {
+          id: payment.id,
+        },
+        include: {
+          outageReport: {
+            include: {
+              outage: true,
+            },
+          },
+        },
+      });
+
+      if (!existingPayment) {
+        throw new AppError(404, "Payment transaction not found");
+      }
+
+      return {
+        payment: existingPayment,
+        outage: existingPayment.outageReport.outage,
+        alreadyProcessed: true,
+      };
+    }
+
+    // Create actual operational outage
+    const outage = await tx.outage.create({
+      data: {
+        title: "Unexpected Power Outage",
+        description: payment.outageReport.description,
+        status: "REPORTED",
+        severity: "MEDIUM",
+
+        zoneId: area.feeder.substation.zoneId,
+        feederId: area.feeder.id,
+        areaId: area.id,
+      },
+    });
+
+    // Connect the report with the actual outage
+    const outageReport = await tx.outageReport.update({
+      where: {
+        id: payment.outageReport.id,
+      },
+      data: {
+        outageId: outage.id,
+      },
+    });
+
+    const updatedPayment = await tx.payment.findUnique({
+      where: {
+        id: payment.id,
+      },
+    });
+
+    return {
+      payment: updatedPayment,
+      outage,
+      outageReport,
+      alreadyProcessed: false,
+    };
+  });
+
   return {
-    paymentId: updatedPayment.id,
-    transactionId: updatedPayment.transactionId,
-    status: updatedPayment.status,
-    amount: updatedPayment.amount,
-    currency: updatedPayment.currency,
+    paymentId: result.payment?.id,
+    paymentStatus: result.payment?.status,
+
+    transactionId: validationResult.tran_id,
     valId: validationResult.val_id,
+
+    amount: validationResult.amount,
+    currency: validationResult.currency,
+
+    outageId: result.outage?.id,
+    outageStatus: result.outage?.status,
+
+    alreadyProcessed: result.alreadyProcessed,
   };
 };
 const validateSSLCommerzPayment = async (valId: string) => {
