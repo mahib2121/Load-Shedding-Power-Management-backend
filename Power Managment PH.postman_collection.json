@@ -27,17 +27,8 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "load-shedding",
-                "schedules"
-              ]
+              "host": ["backend-lime-six-68", "vercel", "app"],
+              "path": ["api", "v1", "load-shedding", "schedules"]
             }
           },
           "response": []
@@ -59,11 +50,7 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules/9fd0e31c-3402-418a-872a-b02114292e90/slots",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
+              "host": ["backend-lime-six-68", "vercel", "app"],
               "path": [
                 "api",
                 "v1",
@@ -84,17 +71,8 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "load-shedding",
-                "schedules"
-              ]
+              "host": ["backend-lime-six-68", "vercel", "app"],
+              "path": ["api", "v1", "load-shedding", "schedules"]
             }
           },
           "response": []
@@ -107,11 +85,7 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules/9fd0e31c-3402-418a-872a-b02114292e90",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
+              "host": ["backend-lime-six-68", "vercel", "app"],
               "path": [
                 "api",
                 "v1",
@@ -131,11 +105,7 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules/9fd0e31c-3402-418a-872a-b02114292e90/slots",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
+              "host": ["backend-lime-six-68", "vercel", "app"],
               "path": [
                 "api",
                 "v1",
@@ -176,11 +146,7 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/api/v1/schedules/{scheduleId}/reject",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
+              "host": ["backend-lime-six-68", "vercel", "app"],
               "path": [
                 "api",
                 "v1",
@@ -203,11 +169,7 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/schedules/9fd0e31c-3402-418a-872a-b02114292e90/activate",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
+              "host": ["backend-lime-six-68", "vercel", "app"],
               "path": [
                 "api",
                 "v1",
@@ -228,17 +190,8 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/load-shedding/my-schedule",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "load-shedding",
-                "my-schedule"
-              ]
+              "host": ["backend-lime-six-68", "vercel", "app"],
+              "path": ["api", "v1", "load-shedding", "my-schedule"]
             }
           },
           "response": []
@@ -265,17 +218,8 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/outages/reports",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "outages",
-                "reports"
-              ]
+              "host": ["backend-lime-six-68", "vercel", "app"],
+              "path": ["api", "v1", "outages", "reports"]
             }
           },
           "response": []
@@ -297,11 +241,7 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/outages/a464a123-98d0-49b5-a667-c6fbe91a1ddf/verify",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
+              "host": ["backend-lime-six-68", "vercel", "app"],
               "path": [
                 "api",
                 "v1",
@@ -330,11 +270,7 @@
             "url": {
               "raw": "https://backend-lime-six-68.vercel.app/api/v1/outages/a464a123-98d0-49b5-a667-c6fbe91a1ddf/assign",
               "protocol": "https",
-              "host": [
-                "backend-lime-six-68",
-                "vercel",
-                "app"
-              ],
+              "host": ["backend-lime-six-68", "vercel", "app"],
               "path": [
                 "api",
                 "v1",
@@ -401,16 +337,9 @@
             "url": {
               "raw": "http://localhost:5000/api/v1/payments/ipn",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "payments",
-                "ipn"
-              ]
+              "path": ["api", "v1", "payments", "ipn"]
             }
           },
           "response": []
@@ -434,17 +363,8 @@
         "url": {
           "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/login",
           "protocol": "https",
-          "host": [
-            "backend-lime-six-68",
-            "vercel",
-            "app"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "login"
-          ]
+          "host": ["backend-lime-six-68", "vercel", "app"],
+          "path": ["api", "v1", "auth", "login"]
         }
       },
       "response": []
@@ -466,17 +386,8 @@
         "url": {
           "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/google",
           "protocol": "https",
-          "host": [
-            "backend-lime-six-68",
-            "vercel",
-            "app"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "google"
-          ]
+          "host": ["backend-lime-six-68", "vercel", "app"],
+          "path": ["api", "v1", "auth", "google"]
         }
       },
       "response": []
@@ -489,17 +400,8 @@
         "url": {
           "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/me",
           "protocol": "https",
-          "host": [
-            "backend-lime-six-68",
-            "vercel",
-            "app"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "me"
-          ]
+          "host": ["backend-lime-six-68", "vercel", "app"],
+          "path": ["api", "v1", "auth", "me"]
         }
       },
       "response": []
@@ -512,17 +414,8 @@
         "url": {
           "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/logout",
           "protocol": "https",
-          "host": [
-            "backend-lime-six-68",
-            "vercel",
-            "app"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "logout"
-          ]
+          "host": ["backend-lime-six-68", "vercel", "app"],
+          "path": ["api", "v1", "auth", "logout"]
         }
       },
       "response": []
@@ -544,17 +437,8 @@
         "url": {
           "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/register",
           "protocol": "https",
-          "host": [
-            "backend-lime-six-68",
-            "vercel",
-            "app"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "register"
-          ]
+          "host": ["backend-lime-six-68", "vercel", "app"],
+          "path": ["api", "v1", "auth", "register"]
         }
       },
       "response": []
@@ -576,17 +460,8 @@
         "url": {
           "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/forgot-password",
           "protocol": "https",
-          "host": [
-            "backend-lime-six-68",
-            "vercel",
-            "app"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "forgot-password"
-          ]
+          "host": ["backend-lime-six-68", "vercel", "app"],
+          "path": ["api", "v1", "auth", "forgot-password"]
         }
       },
       "response": []
@@ -608,17 +483,8 @@
         "url": {
           "raw": "https://backend-lime-six-68.vercel.app/api/v1/auth/reset-password",
           "protocol": "https",
-          "host": [
-            "backend-lime-six-68",
-            "vercel",
-            "app"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "reset-password"
-          ]
+          "host": ["backend-lime-six-68", "vercel", "app"],
+          "path": ["api", "v1", "auth", "reset-password"]
         }
       },
       "response": []

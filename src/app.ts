@@ -13,6 +13,7 @@ import { AuthRoutes } from "./app/module/auth/auth.route";
 import { LoadSheddingRoutes } from "./app/module/load-sheddingschedules/load-shedding.route";
 import { OutageRoutes } from "./app/module/OutageReport/outage.route";
 import { PaymentRoutes } from "./app/module/payment/pay.route";
+import { userRoute } from "./app/module/user/user.route";
 
 const app: Application = express();
 app.use(
@@ -34,10 +35,11 @@ app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/load-shedding", LoadSheddingRoutes);
 app.use("/api/v1/outages", OutageRoutes);
 app.use("/api/v1/payments", PaymentRoutes);
+app.use("/api/v1/users", userRoute);
 /*
  * Future modules:
  *
- * app.use("/api/v1/users", UserRoutes);
+ * app.use("/api/v1/zones", ZoneRoutes);
  * app.use("/api/v1/zones", ZoneRoutes);
  * app.use("/api/v1/substations", SubstationRoutes);
  * app.use("/api/v1/feeders", FeederRoutes);

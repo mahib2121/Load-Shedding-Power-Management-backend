@@ -1,67 +1,72 @@
-// import type { UploadApiResponse } from "cloudinary";
+import type { UploadApiResponse } from "cloudinary";
 
-// import { cloudinaryUpload } from "../../lib/cloudinary";
-// import { prisma } from "../../lib/prisma";
+import { cloudinaryUpload } from "../../lib/cloudinary";
+import { prisma } from "../../lib/prisma";
 
-// const uploadProfileImage = async (buffer: Buffer, userId: string) => {
-//   // 1. Get current profile image
-//   const currentUser = await prisma.user.findUnique({
-//     where: {
-//       id: userId,
-//     },
-//     select: {
-//       imagePublicId: true,
-//       imageUrl: true,
-//     },
-//   });
+const uploadProfileImage = async (buffer: Buffer, userId: string) => {
+  // 1. Make sure the user exists before uploading anything
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { imagePublicId: true },
+  });
 
-//   // 2. Upload new image to Cloudinary
-//   const cloudinaryResult = await new Promise<UploadApiResponse>(
-//     (resolve, reject) => {
-//       const uploadStream = cloudinaryUpload.uploader.upload_stream(
-//         {
-//           resource_type: "image",
-//           folder: "load-shedding/users/profile",
-//         },
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
+  if (!existingUser) {
+    throw new Error("User not found");
+  }
 
-//           if (!result) {
-//             return reject(new Error("No result returned from Cloudinary"));
-//           }
+  // 2. Upload new image to Cloudinary via a streamed buffer
+  const cloudinaryResult = await new Promise<UploadApiResponse>(
+    (resolve, reject) => {
+      const uploadStream = cloudinaryUpload.uploader.upload_stream(
+        {
+          resource_type: "image",
+          folder: "load-shedding/users/profile",
+        },
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
 
-//           resolve(result);
-//         },
-//       );
+          if (!result) {
+            return reject(new Error("No result returned from Cloudinary"));
+          }
 
-//       uploadStream.end(buffer);
-//     },
-//   );
+          resolve(result);
+        },
+      );
 
-//   // 3. Update database
-//   const updatedUser = await prisma.user.update({
-//     where: {
-//       id: userId,
-//     },
-//     data: {
-//       imageUrl: cloudinaryResult.secure_url,
-//       imagePublicId: cloudinaryResult.public_id,
-//     },
-//     omit: {
-//       password: true,
-//     },
-//   });
+      uploadStream.end(buffer);
+    },
+  );
 
-//   // 4. Delete old Cloudinary image
-//   if (currentUser?.imagePublicId) {
-//     await cloudinary.uploader.destroy(currentUser.imagePublicId);
-//   }
+  // 3. Update the user record with new image URL/public id
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      imageUrl: cloudinaryResult.secure_url,
+      imagePublicId: cloudinaryResult.public_id,
+    },
+    omit: {
+      password: true,
+    },
+  });
 
-//   return updatedUser;
-// };
+  // 4. Best-effort cleanup of old Cloudinary asset (do not fail the request)
+  const previousPublicId = existingUser.imagePublicId;
+  if (previousPublicId && previousPublicId !== cloudinaryResult.public_id) {
+    try {
+      await cloudinaryUpload.uploader.destroy(previousPublicId);
+    } catch (err) {
+      console.error(
+        "Failed to delete previous Cloudinary image:",
+        (err as Error).message,
+      );
+    }
+  }
 
-// export const UserServices = {
-//   uploadProfileImage,
-// };
+  return updatedUser;
+};
+
+export const UserServices = {
+  uploadProfileImage,
+};

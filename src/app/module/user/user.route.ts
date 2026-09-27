@@ -1,20 +1,26 @@
-// import { Router } from "express";
+import { Router } from "express";
 
-// import { UserRole } from "../../../generated/prisma/enums";
-// import { auth } from "../../middleware/checkAuth";
-// import { validateRequest } from "../../middleware/validateRequest";
+import { UserRole } from "../../../generated/prisma/enums";
+import { upload } from "../../lib/multer";
+import { auth } from "../../middleware/checkAuth";
+import { UserController } from "./user.controller";
 
-// import { AuthController } from "./auth.controller";
-// import { UserValidation } from "./auth.validation";
-// import { userController } from "./user.controller";
-// import { upload } from "../../lib/multer";
+const router = Router();
 
-// const router = Router();
+/**
+ * Upload / replace the authenticated user's profile image.
+ * Multipart form-data, field name: "profileImage"
+ */
+router.patch(
+  "/profile-image",
+  auth(
+    UserRole.CUSTOMER,
+    UserRole.FIELD_OPERATOR,
+    UserRole.ZONE_MANAGER,
+    UserRole.SUPER_ADMIN,
+  ),
+  upload.single("profileImage"),
+  UserController.uploadProfileImage,
+);
 
-// router.patch(
-//   "/profile_image",
-//   auth(UserRole.CUSTOMER, UserRole.FIELD_OPERATOR, UserRole.SUPER_ADMIN),
-//   upload.single("profileImage"),
-//   userController.uploadprofileImage,
-// );
-// export const userRoute = router;
+export const userRoute = router;

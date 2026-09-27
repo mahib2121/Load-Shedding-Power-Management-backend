@@ -24,6 +24,9 @@ model User {
 
   isActive Boolean @default(true)
 
+  imageUrl      String?
+  imagePublicId String?
+
   areaId String?
   zoneId String?
 
