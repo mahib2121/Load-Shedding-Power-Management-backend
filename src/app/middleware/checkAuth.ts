@@ -24,25 +24,6 @@ declare global {
 	}
 }
 
-/**
- * Authentication + Role Based Authorization
- *
- * Example:
- *
- * auth(UserRole.SUPER_ADMIN)
- *
- * auth(
- *   UserRole.SUPER_ADMIN,
- *   UserRole.ZONE_MANAGER
- * )
- *
- * auth(
- *   UserRole.CUSTOMER,
- *   UserRole.FIELD_OPERATOR,
- *   UserRole.ZONE_MANAGER,
- *   UserRole.SUPER_ADMIN
- * )
- */
 export const auth = (...requiredRoles: UserRole[]) => {
 	return catchAsync(
 		async (req: Request, _res: Response, next: NextFunction) => {

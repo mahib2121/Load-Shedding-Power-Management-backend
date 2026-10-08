@@ -78,7 +78,6 @@ const initialPayment = async (paymentId: string, userId: string) => {
 
   return response.data;
 };
-
 const handleIPN = async (payload: ISSLCommerzIPN) => {
   const { val_id } = payload;
 
