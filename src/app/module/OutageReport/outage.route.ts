@@ -16,6 +16,31 @@ router.post(
   OutageController.createOutageReport,
 );
 
+router.get(
+  "/my-reports",
+  auth(UserRole.CUSTOMER),
+  OutageController.getMyOutageReports,
+);
+
+// Operations list (role-aware)
+router.get(
+  "/",
+  auth(UserRole.FIELD_OPERATOR, UserRole.ZONE_MANAGER, UserRole.SUPER_ADMIN),
+  OutageController.getOutageListForOperations,
+);
+
+// Outage details (any authenticated role)
+router.get(
+  "/:outageId",
+  auth(
+    UserRole.CUSTOMER,
+    UserRole.FIELD_OPERATOR,
+    UserRole.ZONE_MANAGER,
+    UserRole.SUPER_ADMIN,
+  ),
+  OutageController.getOutageById,
+);
+
 // Field Operator / Zone Manager
 
 router.patch(

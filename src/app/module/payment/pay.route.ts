@@ -13,4 +13,10 @@ router.post(
 );
 router.post("/ipn", PaymentController.ipn);
 
+router.get(
+  "/my-payments",
+  auth(UserRole.CUSTOMER),
+  PaymentController.getMyPayments,
+);
+
 export const PaymentRoutes = router;

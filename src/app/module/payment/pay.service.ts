@@ -78,6 +78,45 @@ const initialPayment = async (paymentId: string, userId: string) => {
 
   return response.data;
 };
+const getMyPayments = async (userId: string) => {
+  // Return only the authenticated customer's payments
+  // ordered by most recent first.
+  const payments = await prisma.payment.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      outageReport: {
+        select: {
+          id: true,
+          description: true,
+          areaId: true,
+          createdAt: true,
+          area: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+              feeder: {
+                select: {
+                  id: true,
+                  name: true,
+                  code: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return payments;
+};
+
 const handleIPN = async (payload: ISSLCommerzIPN) => {
   const { val_id } = payload;
 
@@ -256,4 +295,5 @@ const validateSSLCommerzPayment = async (valId: string) => {
 export const PaymentService = {
   initialPayment,
   handleIPN,
+  getMyPayments,
 };

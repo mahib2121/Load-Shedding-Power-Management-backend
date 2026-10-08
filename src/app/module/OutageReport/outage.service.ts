@@ -7,7 +7,10 @@ import {
 } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
-import type { ICreateOutageReportPayload } from "./outage.interface";
+import type {
+  ICreateOutageReportPayload,
+  IOutageListFilters,
+} from "./outage.interface";
 
 const OUTAGE_SERVICE_FEE = 100;
 
@@ -462,10 +465,317 @@ const restoreOutage = async (
   });
 };
 
+const getOutageById = async (
+  outageId: string,
+  user: {
+    userId: string;
+    role: UserRole;
+    zoneId?: string | null;
+    areaId?: string | null;
+  },
+) => {
+  // Customer can only see an outage if they reported an
+  // OutageReport that is linked to that outage.
+  if (user.role === UserRole.CUSTOMER) {
+    const customerReport = await prisma.outageReport.findFirst({
+      where: {
+        outageId,
+        userId: user.userId,
+      },
+      select: { id: true },
+    });
+
+    if (!customerReport) {
+      throw new AppError(404, "Outage not found");
+    }
+  }
+
+  // Zone Manager can only see outages inside their zone
+  if (user.role === UserRole.ZONE_MANAGER && !user.zoneId) {
+    throw new AppError(403, "You are not assigned to a zone");
+  }
+
+  const outage = await prisma.outage.findFirst({
+    where: {
+      id: outageId,
+      deletedAt: null,
+      ...(user.role === UserRole.ZONE_MANAGER && user.zoneId
+        ? { zoneId: user.zoneId }
+        : {}),
+    },
+    include: {
+      zone: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          description: true,
+        },
+      },
+      feeder: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          capacityMW: true,
+          currentLoadMW: true,
+          priority: true,
+          isActive: true,
+          substation: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
+        },
+      },
+      area: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+        },
+      },
+      reports: {
+        select: {
+          id: true,
+          description: true,
+          latitude: true,
+          longitude: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      assignments: {
+        select: {
+          id: true,
+          status: true,
+          assignedAt: true,
+          acceptedAt: true,
+          startedAt: true,
+          completedAt: true,
+          notes: true,
+          technician: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              role: true,
+              jobType: true,
+            },
+          },
+        },
+        orderBy: {
+          assignedAt: "desc",
+        },
+      },
+    },
+  });
+
+  if (!outage) {
+    throw new AppError(404, "Outage not found");
+  }
+
+  return outage;
+};
+
+const getMyOutageReports = async (userId: string) => {
+  // Return only outage reports created by the
+  // authenticated customer, newest first.
+  const reports = await prisma.outageReport.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      area: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          feeder: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
+        },
+      },
+      outage: {
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          severity: true,
+          reportedAt: true,
+          verifiedAt: true,
+          startedAt: true,
+          restoredAt: true,
+        },
+      },
+      payment: {
+        select: {
+          id: true,
+          amount: true,
+          currency: true,
+          status: true,
+          method: true,
+          transactionId: true,
+          createdAt: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return reports;
+};
+
+const getOutageListForOperations = async (
+  user: {
+    userId: string;
+    role: UserRole;
+    jobType?: JobType | null;
+    zoneId?: string | null;
+    areaId?: string | null;
+  },
+  filters: IOutageListFilters,
+) => {
+  // FIELD_OPERATOR → only see operational outages
+  // ZONE_MANAGER   → only see outages in their zone
+  // SUPER_ADMIN    → see all outages
+  const where: Record<string, unknown> = {
+    deletedAt: null,
+  };
+
+  if (user.role === UserRole.ZONE_MANAGER) {
+    if (!user.zoneId) {
+      throw new AppError(403, "You are not assigned to a zone");
+    }
+    where.zoneId = user.zoneId;
+  } else if (user.role === UserRole.FIELD_OPERATOR) {
+    // Field operators only see outages that are part of
+    // active operations: VERIFIED, ASSIGNED or IN_PROGRESS.
+    // Technicians additionally see only their own assignments.
+    const allowedStatuses: OutageStatus[] = [
+      OutageStatus.VERIFIED,
+      OutageStatus.ASSIGNED,
+      OutageStatus.IN_PROGRESS,
+    ];
+
+    if (user.jobType === JobType.TECHNICIAN) {
+      const assignments = await prisma.technicianAssignment.findMany({
+        where: {
+          technicianId: user.userId,
+          status: {
+            in: [
+              AssignmentStatus.PENDING,
+              AssignmentStatus.ACCEPTED,
+              AssignmentStatus.IN_PROGRESS,
+            ],
+          },
+        },
+        select: { outageId: true },
+      });
+
+      const outageIds = assignments.map((a) => a.outageId);
+
+      where.OR = [
+        { id: { in: outageIds } },
+        { status: { in: allowedStatuses } },
+      ];
+    } else {
+      where.status = { in: allowedStatuses };
+    }
+  } else if (user.role !== UserRole.SUPER_ADMIN) {
+    throw new AppError(403, "You don't have access to the outage list");
+  }
+
+  // Apply explicit status filter when present
+  if (filters.status) {
+    // For FIELD_OPERATOR we combine instead of overriding.
+    if (where.OR) {
+      where.AND = [{ status: filters.status }];
+    } else {
+      where.status = filters.status;
+    }
+  }
+
+  const outages = await prisma.outage.findMany({
+    where,
+    include: {
+      zone: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+        },
+      },
+      feeder: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          priority: true,
+        },
+      },
+      area: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+        },
+      },
+      assignments: {
+        select: {
+          id: true,
+          status: true,
+          technician: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              jobType: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          reports: true,
+        },
+      },
+    },
+    orderBy: {
+      reportedAt: "desc",
+    },
+  });
+
+  return outages;
+};
+
 export const OutageService = {
   createOutageReport,
   verifyOutage,
   assignTechnician,
   startRepair,
   restoreOutage,
+  getOutageById,
+  getMyOutageReports,
+  getOutageListForOperations,
 };

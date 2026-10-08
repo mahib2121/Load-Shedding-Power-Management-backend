@@ -30,7 +30,19 @@ const ipn = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyPayments = catchAsync(async (req: Request, res: Response) => {
+  const result = await PaymentService.getMyPayments(req.user!.userId);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Customer payment history retrieved successfully",
+    data: result,
+  });
+});
+
 export const PaymentController = {
   initialPayment,
   ipn,
+  getMyPayments,
 };

@@ -78,10 +78,62 @@ const restoreOutage = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getOutageById = catchAsync(async (req: Request, res: Response) => {
+  const result = await OutageService.getOutageById(
+    req.params.outageId as string,
+    req.user!,
+  );
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Outage details retrieved successfully",
+    data: result,
+  });
+});
+
+const getMyOutageReports = catchAsync(async (req: Request, res: Response) => {
+  const result = await OutageService.getMyOutageReports(req.user!.userId);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Customer outage reports retrieved successfully",
+    data: result,
+  });
+});
+
+const getOutageListForOperations = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await OutageService.getOutageListForOperations(
+      req.user!,
+      {
+        status: req.query.status as
+          | "REPORTED"
+          | "VERIFIED"
+          | "ASSIGNED"
+          | "IN_PROGRESS"
+          | "RESTORED"
+          | undefined,
+      },
+    );
+
+    res.status(httpStatus.OK).json({
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Outages retrieved successfully",
+      data: result,
+    });
+  },
+);
+
 export const OutageController = {
   createOutageReport,
   verifyOutage,
   assignTechnician,
   startRepair,
   restoreOutage,
+  getOutageById,
+  getMyOutageReports,
+  getOutageListForOperations,
 };
