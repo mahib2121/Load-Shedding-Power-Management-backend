@@ -14,6 +14,7 @@ import { LoadSheddingRoutes } from "./app/module/load-sheddingschedules/load-she
 import { OutageRoutes } from "./app/module/OutageReport/outage.route";
 import { PaymentRoutes } from "./app/module/payment/pay.route";
 import { userRoute } from "./app/module/user/user.route";
+import { AreaRoutes } from "./app/module/area/area.route";
 
 const app: Application = express();
 app.use(
@@ -36,6 +37,7 @@ app.use("/api/v1/load-shedding", LoadSheddingRoutes);
 app.use("/api/v1/outages", OutageRoutes);
 app.use("/api/v1/payments", PaymentRoutes);
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/areas", AreaRoutes);
 /*
  * Future modules:
  *
@@ -55,14 +57,16 @@ app.use("/api/v1/users", userRoute);
 app.get("/health", (_req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
     success: true,
-    message: "Load Shedding & Power Management API is running ⚡ Mahib Alam Khan AIUB",
+    message:
+      "Load Shedding & Power Management API is running ⚡ Mahib Alam Khan AIUB",
   });
 });
 
 app.get("/", (_req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
     success: true,
-    message: "Welcome to Load Shedding & Power Management ⚡ Mahib Alam Khan AIUB CSE",
+    message:
+      "Welcome to Load Shedding & Power Management ⚡ Mahib Alam Khan AIUB CSE",
   });
 });
 
